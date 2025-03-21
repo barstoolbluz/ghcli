@@ -660,11 +660,31 @@ setup_github_integration
 # '''
 ## Shell specific profiles go here:
 bash = '''
-source "${FLOX_ENV_CACHE:-$HOME/.cache/flox}/gh_wrapper.bash"
+if [[ -f "${FLOX_ENV_CACHE:-$HOME/.cache/flox}/github_config" ]]; then
+    source "${FLOX_ENV_CACHE:-$HOME/.cache/flox}/github_config"
+    if [[ "$NEEDS_WRAPPER" == "true" && -f "${FLOX_ENV_CACHE:-$HOME/.cache/flox}/gh_wrapper.bash" ]]; then
+        source "${FLOX_ENV_CACHE:-$HOME/.cache/flox}/gh_wrapper.bash"
+    fi
+fi
 '''
-# zsh  = ...
-# fish = ...
 
+zsh = '''
+if [[ -f "${FLOX_ENV_CACHE:-$HOME/.cache/flox}/github_config" ]]; then
+    source "${FLOX_ENV_CACHE:-$HOME/.cache/flox}/github_config"
+    if [[ "$NEEDS_WRAPPER" == "true" && -f "${FLOX_ENV_CACHE:-$HOME/.cache/flox}/gh_wrapper.zsh" ]]; then
+        source "${FLOX_ENV_CACHE:-$HOME/.cache/flox}/gh_wrapper.zsh"
+    fi
+fi
+'''
+
+fish = '''
+if test -f "${FLOX_ENV_CACHE:-$HOME/.cache/flox}/github_config"
+    set -l needs_wrapper (grep "NEEDS_WRAPPER" "${FLOX_ENV_CACHE:-$HOME/.cache/flox}/github_config" | cut -d '=' -f2)
+    if test "$needs_wrapper" = "true"; and test -f "${FLOX_ENV_CACHE:-$HOME/.cache/flox}/gh_wrapper.fish"
+        source ${FLOX_ENV_CACHE:-$HOME/.cache/flox}/gh_wrapper.fish
+    end
+end
+'''
 
 ## Services ----------------------------------------------------------
 ##  $ flox services start             <- Starts all services
