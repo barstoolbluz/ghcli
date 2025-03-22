@@ -666,6 +666,11 @@ if [[ -f "${FLOX_ENV_CACHE:-$HOME/.cache/flox}/github_config" ]]; then
         source "${FLOX_ENV_CACHE:-$HOME/.cache/flox}/gh_wrapper.bash"
     fi
 fi
+
+readme() {
+  [ -s "$FLOX_ENV_PROJECT/README.md" ] || curl -sL "https://raw.githubusercontent.com/barstoolbluz/ghcli/main/README.md" > "$FLOX_ENV_PROJECT/REA>
+  bat --language markdown "$FLOX_ENV_PROJECT/README.md" 2>/dev/null
+}
 '''
 
 zsh = '''
@@ -675,6 +680,11 @@ if [[ -f "${FLOX_ENV_CACHE:-$HOME/.cache/flox}/github_config" ]]; then
         source "${FLOX_ENV_CACHE:-$HOME/.cache/flox}/gh_wrapper.zsh"
     fi
 fi
+
+readme() {
+  [ -s "$FLOX_ENV_PROJECT/README.md" ] || curl -sL "https://raw.githubusercontent.com/barstoolbluz/ghcli/main/README.md" > "$FLOX_ENV_PROJECT/REA>
+  bat --language markdown "$FLOX_ENV_PROJECT/README.md" 2>/dev/null
+}
 '''
 
 fish = '''
@@ -683,6 +693,11 @@ if test -f "${FLOX_ENV_CACHE:-$HOME/.cache/flox}/github_config"
     if test "$needs_wrapper" = "true"; and test -f "${FLOX_ENV_CACHE:-$HOME/.cache/flox}/gh_wrapper.fish"
         source ${FLOX_ENV_CACHE:-$HOME/.cache/flox}/gh_wrapper.fish
     end
+end
+
+function readme
+  test -s "$FLOX_ENV_PROJECT/README.md" || curl -sL "https://raw.githubusercontent.com/barstoolbluz/ghcli/main/README.md" > "$FLOX_ENV_PROJECT/RE>
+  bat --language markdown "$FLOX_ENV_PROJECT/README.md" 2>/dev/null
 end
 '''
 
