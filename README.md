@@ -1,4 +1,4 @@
-# 🔐 Flox GitHub Authentication Environment
+# 🔐 A Flox Environment for GitHub CLI Auth Using a Local Keyring
 
 This Flox environment secures your GitHub CLI (`gh`) authentication by storing GitHub Personal Access Tokens (PATs) locallly using standard methods. You get two storage options:
 
