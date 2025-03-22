@@ -36,10 +36,15 @@ The environment packs these essential tools:
 
 Jump in with:
 
-1. Clone this repo or grab the manifest file
-2. Run:
+1. Clone this repo
 
-```bash
+```sh
+git clone https://github.com/barstoolbluz/ghcli && cd ghcli
+```
+
+ 2. Run:
+
+```sh
 flox activate
 ```
 
@@ -50,11 +55,11 @@ This command:
 
 ### 🧙 Setup Wizard
 
-First time activation triggers a wizard that:
+First-time activation triggers a wizard that:
 
 1. Walks you through token creation if needed
 2. Locks your token in the system keyring or encrypted file
-3. Sets up the right shell hooks for seamless integration
+3. Sets up shell wapper functions if required. If using a keyring, `gh` is unwrapped; if using encrypted local storage, `gh` is wrapped.
 
 ## 📝 Usage
 
@@ -93,7 +98,7 @@ We implement a two-tiered storage strategy:
 
 ### 🐚 Shell Integration
 
-The environment builds shell-specific wrappers that:
+If using an encrypted local file, the environment builds shell-specific wrappers that:
 
 1. Pull your token from secure storage
 2. Inject it as an env var for GitHub CLI
@@ -112,7 +117,7 @@ If GitHub auth breaks:
    - Nuke the local repo folder
    - Either:
      - Clone the repo again, or
-     - Run `flox pull --copy barstoolbluz/ghcli`
+     - Create (`mkdir`) a new repo folder and run `flox pull --copy barstoolbluz/ghcli`
    - Enter clean environment with `flox activate`
 
 3. **Keyring issues**: 
@@ -132,7 +137,7 @@ This works on:
 - Network traffic only occurs during GitHub API validation
 
 **Linux Keyring Note**: 
-On Linux, GNOME Keyring and KWallet can be compromised if an attacker gains access to your active session. While sufficient for most use cases, they don't match the security of dedicated password managers.
+On Linux, GNOME Keyring and KWallet it is possible to dump credentials if an attacker gains access to your active, unlocked session. While sufficient for most use cases, they don't match the security of dedicated password managers.
 
 For hardened environments:
 - Consider dedicated password managers for token storage
