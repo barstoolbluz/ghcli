@@ -76,7 +76,7 @@ gh repo create
 gh pr list
 ```
 
-Auth happens automatically through your secured token.
+Auth happens automatically via your configured mechanism.
 
 ## 🔍 How It Works
 
@@ -110,7 +110,7 @@ If GitHub auth breaks:
 
 1. **Auth fails in environment**: 
    - Exit the environment
-   - Run `flox activate` again to trigger setup
+   - Run `flox activate` again; if config is FUBAR, this will re-trigger setup
    
 2. **Persistent failures**:
    - Exit the environment
