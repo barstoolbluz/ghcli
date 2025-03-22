@@ -137,7 +137,7 @@ This works on:
 - Network traffic only occurs during GitHub API validation
 
 **Linux Keyring Note**: 
-On Linux, GNOME Keyring and KWallet it is possible to dump credentials if an attacker gains access to your active, unlocked session. While sufficient for most use cases, they don't match the security of dedicated password managers.
+On Linux, with both GNOME Keyring and KWallet it is possible to dump credentials if an attacker gains access to your active, unlocked session. While sufficient for most use cases, they don't match the security of dedicated password managers.
 
 For hardened environments:
 - Consider dedicated password managers for token storage
