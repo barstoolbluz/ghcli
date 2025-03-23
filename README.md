@@ -19,7 +19,7 @@ This Flox environment secures your GitHub authentication by storing GitHub Perso
 The environment packs these essential tools:
 
 - `gh` - GitHub CLI for fast API interactions
-- `git` - Version control that doesn't get in your way
+- `gitFull` - Version control that doesn't get in your way
 - `gum` - Terminal UI toolkit powering the setup wizard
 - `bat` - Better `cat` with syntax highlighting
 - `curl` - Solid HTTP client for API testing
