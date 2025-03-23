@@ -1,6 +1,6 @@
-# 🔐 A Flox Environment for GitHub CLI Auth Using a Local Keyring
+# 🔐 A Flox Environment for GitHub CLI & Git Auth Using a Local Keyring
 
-This Flox environment secures your GitHub CLI (`gh`) authentication by storing GitHub Personal Access Tokens (PATs) locallly using standard methods. You get two storage options:
+This Flox environment secures your GitHub authentication by storing GitHub Personal Access Tokens (PATs) locally using standard methods, providing seamless auth for both GitHub CLI (`gh`) and Git operations. You get two storage options:
 
 1. **System keyring/keychain** (preferred) - Uses OS security infrastructure
 2. **Encrypted local file** (fallback) - Encrypts your token with a system-derived key
@@ -9,6 +9,7 @@ This Flox environment secures your GitHub CLI (`gh`) authentication by storing G
 
 - Locks down GitHub tokens in your system keyring or encrypted files
 - Handles GitHub CLI auth automatically without manual token entry
+- Configures Git credential helper to use the same token for Git operations
 - Works across platforms (macOS, Linux)
 - Hooks into Bash, Zsh, and Fish shells
 - Includes a no-nonsense setup wizard that doesn't waste your time
@@ -42,7 +43,7 @@ Jump in with:
 git clone https://github.com/barstoolbluz/ghcli && cd ghcli
 ```
 
- 2. Run:
+2. Run:
 
 ```sh
 flox activate
@@ -51,7 +52,7 @@ flox activate
 This command:
 - Pulls in all dependencies
 - Fires up the auth setup wizard
-- Drops you into the Flox env with GitHub CLI ready to go
+- Drops you into the Flox env with GitHub CLI and Git auth ready to go
 
 ### 🧙 Setup Wizard
 
@@ -59,24 +60,25 @@ First-time activation triggers a wizard that:
 
 1. Walks you through token creation if needed
 2. Locks your token in the system keyring or encrypted file
-3. Sets up shell wapper functions if required. If using a keyring, `gh` is unwrapped; if using encrypted local storage, `gh` is wrapped.
+3. Sets up shell wrapper functions if required. If using a keyring, `gh` is unwrapped; if using encrypted local storage, `gh` is wrapped.
+4. Detects if Git credential helper is configured and offers to set it up with your GitHub token
 
 ## 📝 Usage
 
-After setup, you directly run GitHub CLI commands:
+After setup, you can directly run GitHub CLI commands and Git operations:
 
 ```bash
-# List repos
+# GitHub CLI commands
 gh repo list
-
-# Create repo
 gh repo create
-
-# View PRs
 gh pr list
+
+# Git operations (no password prompts)
+git clone https://github.com/username/repo.git
+git push origin main
 ```
 
-Auth happens automatically via your configured mechanism.
+Auth happens automatically via your configured mechanism for both GitHub CLI and Git.
 
 ## 🔍 How It Works
 
@@ -104,6 +106,19 @@ If using an encrypted local file, the environment builds shell-specific wrappers
 2. Inject it as an env var for GitHub CLI
 3. Clean up after command execution
 
+### 🔑 Git Credential Helper Integration
+
+The environment configures the appropriate Git credential helper based on your operating system:
+
+- **macOS**: `osxkeychain` helper stores credentials in the macOS Keychain
+- **Linux**: `libsecret` helper (if available) or `store` helper
+- **Other**: Falls back to the `store` helper
+
+This integration ensures that:
+- Your GitHub token is used for both GitHub CLI and Git operations
+- You're not prompted for credentials during Git operations
+- Credentials are stored securely using your OS's recommended mechanism
+
 ## 🔧 Troubleshooting
 
 If GitHub auth breaks:
@@ -123,6 +138,13 @@ If GitHub auth breaks:
 3. **Keyring issues**: 
    - The wizard will fall back to encrypted file storage
 
+4. **Git credential helper issues**:
+   - Run `git config --list | grep credential` to check your current configuration
+   - Run `flox activate` again to re-run the setup wizard
+   - If problems persist, manually configure Git credential helper with:
+     - macOS: `git config --global credential.helper osxkeychain`
+     - Linux: `git config --global credential.helper libsecret` or `git config --global credential.helper store`
+
 ## 💻 System Compatibility
 
 This works on:
@@ -135,6 +157,7 @@ This works on:
 - System keyring implements OS-native security
 - Encrypted files use system-derived keys that can't be easily guessed
 - Network traffic only occurs during GitHub API validation
+- Git credential helper offers the same level of security as your system's credential storage
 
 **Linux Keyring Note**: 
 On Linux, with both GNOME Keyring and KWallet it is possible to dump credentials if an attacker gains access to your active, unlocked session. While sufficient for most use cases, they don't match the security of dedicated password managers.
