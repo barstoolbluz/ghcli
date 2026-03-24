@@ -1,0 +1,142 @@
+schema-version = "1.10.0"
+
+
+[install]
+# ghcli-setup + ghcli-reset binaries
+ghx.pkg-path = "flox/ghx"
+ghx.version = "0.9.2+1cfb0c5"
+
+# core gh / github deps
+gh.pkg-path = "gh"
+git.pkg-path = "git"
+git.outputs = "all"
+
+# everything else
+gum.pkg-path = "gum"
+gum.pkg-group = "other"
+bat.pkg-path = "bat"
+curl.pkg-path = "curl"
+curl.outputs = "all"
+openssl.pkg-path = "openssl"
+openssl.pkg-group = "other"
+openssl.outputs = "all"
+gnused.pkg-path = "gnused"
+gnused.outputs = "all"
+gawk.pkg-path = "gawk"
+gawk.outputs = "all"
+gnugrep.pkg-path = "gnugrep"
+gnugrep.outputs = "all"
+coreutils.pkg-path = "coreutils"
+coreutils.pkg-group = "other"
+coreutils.outputs = "all"
+libsecret.pkg-path = "libsecret"
+libsecret.pkg-group = "other"
+libsecret.outputs = "all"
+jq.pkg-path = "jq"
+flock.pkg-path = "flock"
+openssh.pkg-path = "openssh"
+bash.pkg-path = "bash"
+
+
+[hook]
+on-activate = '''
+# RESET=1 flox activate — triggers a full credential wipe
+if [[ "${RESET:-0}" == "1" ]]; then
+    if command -v ghcli-reset >/dev/null 2>&1; then
+        ghcli-reset --all --yes
+    else
+        echo "Error: ghcli-reset not found on PATH" >&2
+    fi
+    return 0
+fi
+
+export GH_NEEDS_SETUP=0
+
+_ghcli_config="${XDG_CONFIG_HOME:-$HOME/.config}/gh/nix/github_config"
+_ghcli_helper="${XDG_CONFIG_HOME:-$HOME/.config}/gh/nix/gh-token-helper"
+
+# Use the SSH key path from config for git operations (avoids needing ~/.ssh/config to match)
+_ssh_key="$(awk -F= '$1 == "SSH_KEY_PATH" {print $2}' "$_ghcli_config" 2>/dev/null)"
+if [[ -n "$_ssh_key" && -f "$_ssh_key" ]]; then
+    export GIT_SSH_COMMAND="ssh -i '${_ssh_key}'"
+fi
+unset _ssh_key
+_ghcli_token=""
+if [[ -x "$_ghcli_helper" ]]; then
+    _ghcli_token="$("$_ghcli_helper" 2>/dev/null || true)"
+fi
+if [[ -n "$_ghcli_token" ]]; then
+    export GH_TOKEN="$_ghcli_token"
+    export GITHUB_TOKEN="$_ghcli_token"
+else
+    if ! command gh auth status >/dev/null 2>&1; then
+        export GH_NEEDS_SETUP=1
+    fi
+fi
+unset _ghcli_config _ghcli_helper _ghcli_token
+'''
+
+[profile]
+bash = '''
+if [[ "$GH_NEEDS_SETUP" == "1" ]]; then
+    echo ""
+    echo "⚠  GitHub CLI is not authenticated."
+    echo "   Run 'ghcli-setup' to set up authentication."
+    echo ""
+fi
+
+gh() {
+    local helper="${XDG_CONFIG_HOME:-$HOME/.config}/gh/nix/gh-token-helper"
+    local token=''
+    token="$("$helper" 2>/dev/null || true)"
+    if [[ -n "$token" ]]; then
+        GH_TOKEN="$token" GITHUB_TOKEN="$token" command gh "$@"
+    else
+        command gh "$@"
+    fi
+}
+'''
+
+zsh = '''
+if [[ "$GH_NEEDS_SETUP" == "1" ]]; then
+    echo ""
+    echo "⚠  GitHub CLI is not authenticated."
+    echo "   Run 'ghcli-setup' to set up authentication."
+    echo ""
+fi
+
+gh() {
+    local helper="${XDG_CONFIG_HOME:-$HOME/.config}/gh/nix/gh-token-helper"
+    local token=''
+    token="$("$helper" 2>/dev/null || true)"
+    if [[ -n "$token" ]]; then
+        GH_TOKEN="$token" GITHUB_TOKEN="$token" command gh "$@"
+    else
+        command gh "$@"
+    fi
+}
+'''
+
+fish = '''
+if test "$GH_NEEDS_SETUP" = "1"
+    echo ""
+    echo "⚠  GitHub CLI is not authenticated."
+    echo "   Run 'ghcli-setup' to set up authentication."
+    echo ""
+end
+
+function gh
+    if test -n "$XDG_CONFIG_HOME"
+        set -l config_base "$XDG_CONFIG_HOME"
+    else
+        set -l config_base "$HOME/.config"
+    end
+    set -l helper "$config_base/gh/nix/gh-token-helper"
+    set -l token ("$helper" 2>/dev/null; or true)
+    if test -n "$token"
+        env GH_TOKEN="$token" GITHUB_TOKEN="$token" command gh $argv
+    else
+        command gh $argv
+    end
+end
+'''
