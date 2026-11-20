@@ -11,7 +11,7 @@
 
   outputs = { self, nixpkgs, ghcli-runtime }:
     let
-      supportedSystems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
+      supportedSystems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" ];
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
     in {
       devShells = forAllSystems (system:
@@ -35,7 +35,7 @@
             pkgs.flock
             pkgs.openssh
             pkgs.bash
-          ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+          ] ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
             pkgs.libsecret
           ];
 
@@ -117,7 +117,7 @@
             pkgs.flock
             pkgs.openssh
             pkgs.bash
-          ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+          ] ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
             pkgs.libsecret
           ];
 
@@ -154,14 +154,17 @@
           default = {
             type = "app";
             program = "${ghcli-bash}/bin/ghcli-bash";
+            meta.description = "bash with gh, git, and ghcli token management";
           };
           zsh = {
             type = "app";
             program = "${ghcli-zsh}/bin/ghcli-zsh";
+            meta.description = "zsh with gh, git, and ghcli token management";
           };
           fish = {
             type = "app";
             program = "${ghcli-fish}/bin/ghcli-fish";
+            meta.description = "fish with gh, git, and ghcli token management";
           };
         }
       );

@@ -175,7 +175,7 @@ man ghcli-reset
 
 ## Platforms
 
-Linux (x86_64, aarch64) and macOS (x86_64, Apple Silicon).
+Linux (x86_64, aarch64) and macOS (Apple Silicon).
 
 ## License
 
